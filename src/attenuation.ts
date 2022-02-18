@@ -1,7 +1,10 @@
-// https://whitepaper.fission.codes/access-control/ucan/jwt-authentication#attenuation
+// https://github.com/ucan-wg/spec/blob/dd4ac83f893cef109f5a26b07970b2484f23aabf/README.md#325-attenuation-scope
 import { Capability, Ucan } from "./types"
 import { Chained } from "./chained"
 import * as util from "./util"
+
+
+// TYPES
 
 
 export interface CapabilitySemantics<A> {
@@ -14,6 +17,7 @@ export interface CapabilitySemantics<A> {
    * return `null`.
    */
   tryParsing(cap: Capability): A | null
+
   /**
    * This figures out whether a given `childCap` can be delegated from `parentCap`.
    * There are three possible results with three return types respectively:
@@ -22,9 +26,13 @@ export interface CapabilitySemantics<A> {
    * - `CapabilityEscalation<A>`: It's clear that `childCap` is meant to be delegated from `parentCap`, but there's a rights escalation.
    */
   tryDelegating(parentCap: A, childCap: A): A | null | CapabilityEscalation<A>
-  // TODO builders
+
+  // TODO: builders
 }
 
+export type CapabilityResult<A>
+  = CapabilityWithInfo<A>
+  | CapabilityEscalation<A>
 
 export interface CapabilityInfo {
   originator: string // DID
@@ -32,28 +40,43 @@ export interface CapabilityInfo {
   notBefore?: number
 }
 
-
 export interface CapabilityWithInfo<A> {
   info: CapabilityInfo
   capability: A
 }
-
-
-export type CapabilityResult<A>
-  = CapabilityWithInfo<A>
-  | CapabilityEscalation<A>
-
 
 export interface CapabilityEscalation<A> {
   escalation: string // reason
   capability: A // the capability that escalated rights
 }
 
+
+
+// TYPE CHECKING
+
+
 export function isCapabilityEscalation<A>(obj: unknown): obj is CapabilityEscalation<A> {
   return util.isRecord(obj)
     && util.hasProp(obj, "escalation") && typeof obj.escalation === "string"
     && util.hasProp(obj, "capability")
 }
+
+
+// PARSING
+
+
+function parseCapabilityInfo(ucan: Ucan<never>): CapabilityInfo {
+  return {
+    originator: ucan.payload.iss,
+    expiresAt: ucan.payload.exp,
+    ...(ucan.payload.nbf != null ? { notBefore: ucan.payload.nbf } : {}),
+  }
+}
+
+
+
+// FUNCTIONS
+
 
 export function canDelegate<A>(semantics: CapabilitySemantics<A>, capability: A, ucan: Chained): boolean {
   for (const cap of capabilities(ucan, semantics)) {
@@ -74,7 +97,6 @@ export function canDelegate<A>(semantics: CapabilitySemantics<A>, capability: A,
 
   return false
 }
-
 
 export function capabilities<A>(
   ucan: Chained,
@@ -145,13 +167,5 @@ function delegateCapabilityInfo(childInfo: CapabilityInfo, parentInfo: Capabilit
     originator: parentInfo.originator,
     expiresAt: Math.min(childInfo.expiresAt, parentInfo.expiresAt),
     ...notBefore,
-  }
-}
-
-function parseCapabilityInfo(ucan: Ucan<never>): CapabilityInfo {
-  return {
-    originator: ucan.payload.iss,
-    expiresAt: ucan.payload.exp,
-    ...(ucan.payload.nbf != null ? { notBefore: ucan.payload.nbf } : {}),
   }
 }

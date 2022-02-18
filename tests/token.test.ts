@@ -55,16 +55,16 @@ describe("token.validate", () => {
       issuer: alice,
       capabilities: [
         {
-          "wnfs": "boris.fission.name/public/photos/",
-          "cap": "OVERWRITE"
+          "with": "wnfs://boris.fission.name/public/photos/",
+          "can": "crud/DELETE"
         },
         {
-          "wnfs": "boris.fission.name/private/4tZA6S61BSXygmJGGW885odfQwpnR2UgmCaS5CfCuWtEKQdtkRnvKVdZ4q6wBXYTjhewomJWPL2ui3hJqaSodFnKyWiPZWLwzp1h7wLtaVBQqSW4ZFgyYaJScVkBs32BThn6BZBJTmayeoA9hm8XrhTX4CGX5CVCwqvEUvHTSzAwdaR",
-          "cap": "APPEND"
+          "with": "wnfs://boris.fission.name/private/84MZ7aqwKn7sNiMGsSbaxsEa6EPnQLoKYbXByxNBrCEr",
+          "can": "wnfs/APPEND"
         },
         {
-          "email": "boris@fission.codes",
-          "cap": "SEND"
+          "with": "mailto:boris@fission.codes",
+          "can": "msg/SEND"
         }
       ]
     })
@@ -130,7 +130,7 @@ describe("token.validate", () => {
 describe("verifySignatureUtf8", () => {
 
   it("works with an example", async () => {
-    const [header, payload, signature] = token.encode(await token.build({
+    const [ header, payload, signature ] = token.encode(await token.build({
       issuer: alice,
       audience: bob.did(),
     })).split(".")

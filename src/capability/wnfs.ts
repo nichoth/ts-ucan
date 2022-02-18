@@ -19,9 +19,9 @@ export function isWnfsCap(obj: unknown): obj is WnfsCap {
 
 
 
-/////////////////////////////
-// Public WNFS Capabilities
-/////////////////////////////
+//////////////////////////////
+// Public WNFS Capabilities //
+//////////////////////////////
 
 
 export interface WnfsPublicCapability {
@@ -47,9 +47,9 @@ export const wnfsPublicSemantics: CapabilitySemantics<WnfsPublicCapability> = {
     // remove trailing slash
     const trimmed = cap.wnfs.endsWith("/") ? cap.wnfs.slice(0, -1) : cap.wnfs
     const split = trimmed.split("/")
-    const user = split[0]
+    const user = split[ 0 ]
     const publicPath = split.slice(2) // drop first two: matheus23.fission.name/public/keep/this
-    if (user == null || split[1] !== "public") return null
+    if (user == null || split[ 1 ] !== "public") return null
     return {
       user,
       publicPath,
@@ -62,7 +62,7 @@ export const wnfsPublicSemantics: CapabilitySemantics<WnfsPublicCapability> = {
     if (childCap.user !== parentCap.user) return null
 
     // must not escalate capability level
-    if (wnfsCapLevels[childCap.cap] > wnfsCapLevels[parentCap.cap]) {
+    if (wnfsCapLevels[ childCap.cap ] > wnfsCapLevels[ parentCap.cap ]) {
       return {
         escalation: "Capability level escalation",
         capability: childCap,
@@ -78,7 +78,7 @@ export const wnfsPublicSemantics: CapabilitySemantics<WnfsPublicCapability> = {
     }
 
     for (let i = 0; i < parentCap.publicPath.length; i++) {
-      if (childCap.publicPath[i] !== parentCap.publicPath[i]) {
+      if (childCap.publicPath[ i ] !== parentCap.publicPath[ i ]) {
         return {
           escalation: "WNFS Public path access escalation",
           capability: childCap,
@@ -97,9 +97,9 @@ export function wnfsPublicCapabilities(ucan: Chained) {
 
 
 
-/////////////////////////////
-// Private WNFS Capabilities
-/////////////////////////////
+///////////////////////////////
+// Private WNFS Capabilities //
+///////////////////////////////
 
 
 export interface WnfsPrivateCapability {
@@ -112,7 +112,7 @@ const wnfsPrivateSemantics: CapabilitySemantics<WnfsPrivateCapability> = {
 
   /**
    * Example valid private wnfs capability:
-   * 
+   *
    * ```js
    * {
    *   wnfs: "boris.fission.name/private/fccXmZ8HYmpwxkvPSjwW9A",
@@ -125,14 +125,14 @@ const wnfsPrivateSemantics: CapabilitySemantics<WnfsPrivateCapability> = {
 
     // split up "boris.fission.name/private/fccXmZ8HYmpwxkvPSjwW9A" into "<user>/private/<inumberBase64url>"
     const split = cap.wnfs.split("/")
-    const user = split[0]
-    const inumberBase64url = split[2]
-    
-    if (user == null || split[1] !== "private" || inumberBase64url == null) return null
+    const user = split[ 0 ]
+    const inumberBase64url = split[ 2 ]
+
+    if (user == null || split[ 1 ] !== "private" || inumberBase64url == null) return null
 
     return {
       user,
-      requiredINumbers: new Set([inumberBase64url]),
+      requiredINumbers: new Set([ inumberBase64url ]),
       cap: cap.cap,
     }
   },
@@ -142,7 +142,7 @@ const wnfsPrivateSemantics: CapabilitySemantics<WnfsPrivateCapability> = {
     if (childCap.user !== parentCap.user) return null
 
     // This escalation *could* be wrong, but we shouldn't assume they're unrelated either.
-    if (wnfsCapLevels[childCap.cap] > wnfsCapLevels[parentCap.cap]) {
+    if (wnfsCapLevels[ childCap.cap ] > wnfsCapLevels[ parentCap.cap ]) {
       return {
         escalation: "Capability level escalation",
         capability: childCap,
@@ -151,7 +151,7 @@ const wnfsPrivateSemantics: CapabilitySemantics<WnfsPrivateCapability> = {
 
     return {
       ...childCap,
-      requiredINumbers: new Set([...childCap.requiredINumbers.values(), ...parentCap.requiredINumbers.values()]),
+      requiredINumbers: new Set([ ...childCap.requiredINumbers.values(), ...parentCap.requiredINumbers.values() ]),
     }
   },
 

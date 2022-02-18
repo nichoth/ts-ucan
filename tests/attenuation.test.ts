@@ -15,24 +15,24 @@ describe("attenuation.emailCapabilities", () => {
     const leafUcan = await token.build({
       issuer: alice,
       audience: bob.did(),
-      capabilities: [{
-        email: "alice@email.com",
-        cap: "SEND",
-      }]
+      capabilities: [ {
+        with: "email:alice@email.com",
+        can: "SEND",
+      } ]
     })
 
     const ucan = await token.build({
       issuer: bob,
       audience: mallory.did(),
-      capabilities: [{
+      capabilities: [ {
         email: "alice@email.com",
         cap: "SEND",
-      }],
-      proofs: [token.encode(leafUcan)]
+      } ],
+      proofs: [ token.encode(leafUcan) ]
     })
 
     const emailCaps = Array.from(emailCapabilities(await Chained.fromToken(token.encode(ucan))))
-    expect(emailCaps).toEqual([{
+    expect(emailCaps).toEqual([ {
       info: {
         originator: alice.did(),
         expiresAt: Math.min(leafUcan.payload.exp, ucan.payload.exp),
@@ -42,7 +42,7 @@ describe("attenuation.emailCapabilities", () => {
         email: "alice@email.com",
         cap: "SEND"
       }
-    }])
+    } ])
   })
 
   it("reports the first issuer in the chain as originator", async () => {
@@ -57,15 +57,15 @@ describe("attenuation.emailCapabilities", () => {
     const ucan = await token.build({
       issuer: bob,
       audience: mallory.did(),
-      capabilities: [{
+      capabilities: [ {
         email: "bob@email.com",
         cap: "SEND",
-      }],
-      proofs: [token.encode(leafUcan)]
+      } ],
+      proofs: [ token.encode(leafUcan) ]
     })
 
     // we implicitly expect the originator to become bob
-    expect(Array.from(emailCapabilities(await Chained.fromToken(token.encode(ucan))))).toEqual([{
+    expect(Array.from(emailCapabilities(await Chained.fromToken(token.encode(ucan))))).toEqual([ {
       info: {
         originator: bob.did(),
         expiresAt: ucan.payload.exp,
@@ -75,7 +75,7 @@ describe("attenuation.emailCapabilities", () => {
         email: "bob@email.com",
         cap: "SEND"
       }
-    }])
+    } ])
   })
 
   it("finds the right proof chain for the originator", async () => {
@@ -85,19 +85,19 @@ describe("attenuation.emailCapabilities", () => {
     const leafUcanAlice = await token.build({
       issuer: alice,
       audience: mallory.did(),
-      capabilities: [{
+      capabilities: [ {
         email: "alice@email.com",
         cap: "SEND",
-      }]
+      } ]
     })
 
     const leafUcanBob = await token.build({
       issuer: bob,
       audience: mallory.did(),
-      capabilities: [{
+      capabilities: [ {
         email: "bob@email.com",
         cap: "SEND",
-      }]
+      } ]
     })
 
     const ucan = await token.build({
@@ -113,7 +113,7 @@ describe("attenuation.emailCapabilities", () => {
           cap: "SEND",
         }
       ],
-      proofs: [token.encode(leafUcanAlice), token.encode(leafUcanBob)]
+      proofs: [ token.encode(leafUcanAlice), token.encode(leafUcanBob) ]
     })
 
     const chained = await Chained.fromToken(token.encode(ucan))
@@ -158,20 +158,20 @@ describe("attenuation.emailCapabilities", () => {
     const leafUcanAlice = await token.build({
       issuer: alice,
       audience: mallory.did(),
-      capabilities: [aliceEmail]
+      capabilities: [ aliceEmail ]
     })
 
     const leafUcanBob = await token.build({
       issuer: bob,
       audience: mallory.did(),
-      capabilities: [aliceEmail]
+      capabilities: [ aliceEmail ]
     })
 
     const ucan = await token.build({
       issuer: mallory,
       audience: alice.did(),
-      capabilities: [aliceEmail],
-      proofs: [token.encode(leafUcanAlice), token.encode(leafUcanBob)]
+      capabilities: [ aliceEmail ],
+      proofs: [ token.encode(leafUcanAlice), token.encode(leafUcanBob) ]
     })
 
     const chained = await Chained.fromToken(token.encode(ucan))
