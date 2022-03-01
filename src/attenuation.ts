@@ -1,6 +1,7 @@
 // https://github.com/ucan-wg/spec/blob/dd4ac83f893cef109f5a26b07970b2484f23aabf/README.md#325-attenuation-scope
-import { Capability, Ucan } from "./types"
+import { Capability } from "./capability/types"
 import { Chained } from "./chained"
+import { Ucan } from "./types"
 import * as util from "./util"
 
 
@@ -26,8 +27,6 @@ export interface CapabilitySemantics<A> {
    * - `CapabilityEscalation<A>`: It's clear that `childCap` is meant to be delegated from `parentCap`, but there's a rights escalation.
    */
   tryDelegating(parentCap: A, childCap: A): A | null | CapabilityEscalation<A>
-
-  // TODO: builders
 }
 
 export type CapabilityResult<A>

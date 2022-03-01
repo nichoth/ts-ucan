@@ -1,7 +1,7 @@
 import * as token from "../../src/token"
 import { Chained } from "../../src/chained"
 import { Capability } from "../../src/types"
-import { wnfsPrivateCapabilities, wnfsPublicCapabilities } from "../../src/capability/wnfs"
+import { wnfsPrivateCapabilities, wnfsPublicCapabilities } from "./wnfs"
 
 import { alice, bob, mallory } from "../fixtures"
 import { maxNbf } from "../utils"
@@ -12,14 +12,14 @@ describe("wnfs public capability", () => {
 
   it("works with a simple example", async () => {
     const { leaf, ucan, chain } = await makeSimpleDelegation(
-      [{
+      [ {
         wnfs: "boris.fission.name/public/Apps/",
         cap: "OVERWRITE",
-      }],
-      [{
+      } ],
+      [ {
         wnfs: "boris.fission.name/public/Apps/appinator/",
         cap: "REVISE",
-      }]
+      } ]
     )
 
     expect(Array.from(wnfsPublicCapabilities(chain))).toEqual([
@@ -31,7 +31,7 @@ describe("wnfs public capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          publicPath: ["Apps", "appinator"],
+          publicPath: [ "Apps", "appinator" ],
           cap: "REVISE",
         }
       }
@@ -40,39 +40,39 @@ describe("wnfs public capability", () => {
 
   it("detects capability escalations", async () => {
     const { chain } = await makeSimpleDelegation(
-      [{
+      [ {
         wnfs: "boris.fission.name/public/Apps/",
         cap: "CREATE",
-      }],
-      [{
+      } ],
+      [ {
         wnfs: "boris.fission.name/public/Apps/appinator/",
         cap: "OVERWRITE",
-      }]
+      } ]
     )
 
-    expect(Array.from(wnfsPublicCapabilities(chain))).toEqual([{
+    expect(Array.from(wnfsPublicCapabilities(chain))).toEqual([ {
       escalation: "Capability level escalation",
       capability: {
         user: "boris.fission.name",
-        publicPath: ["Apps", "appinator"],
+        publicPath: [ "Apps", "appinator" ],
         cap: "OVERWRITE",
       }
-    }])
+    } ])
   })
 
   it("detects capability escalations, even if there's valid capabilities", async () => {
     const { leaf, ucan, chain } = await makeSimpleDelegation(
-      [{
+      [ {
         wnfs: "boris.fission.name/public/Apps/",
         cap: "CREATE",
-      },{
+      }, {
         wnfs: "boris.fission.name/public/Apps/",
         cap: "SUPER_USER",
-      }],
-      [{
+      } ],
+      [ {
         wnfs: "boris.fission.name/public/Apps/appinator/",
         cap: "OVERWRITE",
-      }]
+      } ]
     )
 
     expect(Array.from(wnfsPublicCapabilities(chain))).toEqual([
@@ -80,7 +80,7 @@ describe("wnfs public capability", () => {
         escalation: "Capability level escalation",
         capability: {
           user: "boris.fission.name",
-          publicPath: ["Apps", "appinator"],
+          publicPath: [ "Apps", "appinator" ],
           cap: "OVERWRITE",
         }
       },
@@ -92,7 +92,7 @@ describe("wnfs public capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          publicPath: ["Apps", "appinator"],
+          publicPath: [ "Apps", "appinator" ],
           cap: "OVERWRITE",
         }
       }
@@ -105,14 +105,14 @@ describe("wnfs private capability", () => {
 
   it("works with a simple example", async () => {
     const { leaf, ucan, chain } = await makeSimpleDelegation(
-      [{
+      [ {
         wnfs: "boris.fission.name/private/abc",
         cap: "OVERWRITE",
-      }],
-      [{
+      } ],
+      [ {
         wnfs: "boris.fission.name/private/def",
         cap: "REVISE",
-      }]
+      } ]
     )
 
     expect(Array.from(wnfsPrivateCapabilities(chain))).toEqual([
@@ -124,7 +124,7 @@ describe("wnfs private capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["abc", "def"]),
+          requiredINumbers: new Set([ "abc", "def" ]),
           cap: "REVISE",
         }
       }
@@ -133,14 +133,14 @@ describe("wnfs private capability", () => {
 
   it("detects capability escalations", async () => {
     const { chain } = await makeSimpleDelegation(
-      [{
+      [ {
         wnfs: "boris.fission.name/private/abc",
         cap: "OVERWRITE",
-      }],
-      [{
+      } ],
+      [ {
         wnfs: "boris.fission.name/private/def",
         cap: "SUPER_USER",
-      }]
+      } ]
     )
 
     expect(Array.from(wnfsPrivateCapabilities(chain))).toEqual([
@@ -148,7 +148,7 @@ describe("wnfs private capability", () => {
         escalation: "Capability level escalation",
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["def"]),
+          requiredINumbers: new Set([ "def" ]),
           cap: "SUPER_USER",
         }
       },
@@ -157,10 +157,10 @@ describe("wnfs private capability", () => {
 
   it("detects capability escalations, but still returns valid delegations", async () => {
     const { leaf, ucan, chain } = await makeSimpleDelegation(
-      [{
+      [ {
         wnfs: "boris.fission.name/private/abc",
         cap: "OVERWRITE",
-      }],
+      } ],
       [
         {
           wnfs: "boris.fission.name/private/def",
@@ -178,7 +178,7 @@ describe("wnfs private capability", () => {
         escalation: "Capability level escalation",
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["def"]),
+          requiredINumbers: new Set([ "def" ]),
           cap: "SUPER_USER",
         }
       },
@@ -190,7 +190,7 @@ describe("wnfs private capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["abc", "ghi"]),
+          requiredINumbers: new Set([ "abc", "ghi" ]),
           cap: "CREATE",
         }
       }
@@ -200,19 +200,19 @@ describe("wnfs private capability", () => {
   it("lists all possible inumber combinations", async () => {
     const { leafAlice, leafBob, ucan, chain } = await makeComplexDelegation(
       {
-        alice: [{
+        alice: [ {
           wnfs: "boris.fission.name/private/inumalice",
           cap: "OVERWRITE",
-        }],
-        bob: [{
+        } ],
+        bob: [ {
           wnfs: "boris.fission.name/private/inumbob",
           cap: "OVERWRITE",
-        }]
+        } ]
       },
-      [{
+      [ {
         wnfs: "boris.fission.name/private/subinum",
         cap: "OVERWRITE",
-      }]
+      } ]
     )
 
     expect(Array.from(wnfsPrivateCapabilities(chain))).toEqual([
@@ -224,7 +224,7 @@ describe("wnfs private capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["inumalice", "subinum"]),
+          requiredINumbers: new Set([ "inumalice", "subinum" ]),
           cap: "OVERWRITE",
         }
       },
@@ -236,7 +236,7 @@ describe("wnfs private capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["inumbob", "subinum"]),
+          requiredINumbers: new Set([ "inumbob", "subinum" ]),
           cap: "OVERWRITE",
         }
       }
@@ -246,19 +246,19 @@ describe("wnfs private capability", () => {
   it("lists all possible inumber combinations except escalations", async () => {
     const { leafBob, ucan, chain } = await makeComplexDelegation(
       {
-        alice: [{
+        alice: [ {
           wnfs: "boris.fission.name/private/inumalice",
           cap: "CREATE",
-        }],
-        bob: [{
+        } ],
+        bob: [ {
           wnfs: "boris.fission.name/private/inumbob",
           cap: "OVERWRITE",
-        }]
+        } ]
       },
-      [{
+      [ {
         wnfs: "boris.fission.name/private/subinum",
         cap: "OVERWRITE",
-      }]
+      } ]
     )
 
     expect(Array.from(wnfsPrivateCapabilities(chain))).toEqual([
@@ -266,7 +266,7 @@ describe("wnfs private capability", () => {
         escalation: "Capability level escalation",
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["subinum"]),
+          requiredINumbers: new Set([ "subinum" ]),
           cap: "OVERWRITE",
         }
       },
@@ -278,7 +278,7 @@ describe("wnfs private capability", () => {
         },
         capability: {
           user: "boris.fission.name",
-          requiredINumbers: new Set(["inumbob", "subinum"]),
+          requiredINumbers: new Set([ "inumbob", "subinum" ]),
           cap: "OVERWRITE",
         }
       }
@@ -290,7 +290,7 @@ describe("wnfs private capability", () => {
 /**
  * A linear delegation chain:
  * alice -> bob -> mallory
- * 
+ *
  * The arguments are the capabilities delegated in the first and second arrow, respectively.
  */
 async function makeSimpleDelegation(aliceCapabilities: Capability[], bobCapabilities: Capability[]) {
@@ -304,7 +304,7 @@ async function makeSimpleDelegation(aliceCapabilities: Capability[], bobCapabili
     issuer: bob,
     audience: mallory.did(),
     capabilities: bobCapabilities,
-    proofs: [token.encode(leaf)]
+    proofs: [ token.encode(leaf) ]
   })
 
   const chain = await Chained.fromToken(token.encode(ucan))
@@ -316,7 +316,7 @@ async function makeSimpleDelegation(aliceCapabilities: Capability[], bobCapabili
 /**
  * A tree-like delegation ucan:
  * alice & bob => mallory -> alice
- * 
+ *
  * The first argument are the capabilities delegated in the first two arrows,
  * the second argument are the capabilities delegated in the last arrow.
  */
@@ -337,7 +337,7 @@ async function makeComplexDelegation(proofs: { alice: Capability[]; bob: Capabil
     issuer: mallory,
     audience: alice.did(),
     capabilities: final,
-    proofs: [token.encode(leafAlice), token.encode(leafBob)],
+    proofs: [ token.encode(leafAlice), token.encode(leafBob) ],
   })
 
   const chain = await Chained.fromToken(token.encode(ucan))

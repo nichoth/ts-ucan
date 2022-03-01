@@ -1,6 +1,6 @@
-import { Capability } from "../types"
-import { capabilities, CapabilityEscalation, CapabilitySemantics } from "../attenuation"
-import { Chained } from "../chained"
+import { Capability } from "../../src/capability/types"
+import { capabilities, CapabilityEscalation, CapabilitySemantics } from "../../src/attenuation"
+import { Chained } from "../../src/chained"
 
 
 export const wnfsCapLevels = {

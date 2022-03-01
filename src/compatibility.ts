@@ -1,6 +1,7 @@
 // A module to hold all the ugly compatibility logic
 // for getting from old UCANs to newer version UCANs.
 import * as util from "./util"
+import { SUPERUSER } from "./capability/types"
 import { UcanParts, isUcanHeader, isUcanPayload } from "./types"
 
 
@@ -15,7 +16,7 @@ type UcanPayload_0_0_1 = {
   aud: string
   nbf?: number
   exp: number
-  rsc: string
+  rsc: string | Record<string, string>
   ptc: string
   prf?: string
 }
@@ -33,7 +34,7 @@ function isUcanPayload_0_0_1(obj: unknown): obj is UcanPayload_0_0_1 {
     && util.hasProp(obj, "aud") && typeof obj.aud === "string"
     && (!util.hasProp(obj, "nbf") || typeof obj.nbf === "number")
     && util.hasProp(obj, "exp") && typeof obj.exp === "number"
-    && util.hasProp(obj, "rsc") && typeof obj.rsc === "string"
+    && util.hasProp(obj, "rsc") && (typeof obj.rsc === "string" || util.isRecord(obj))
     && util.hasProp(obj, "ptc") && typeof obj.ptc === "string"
     && (!util.hasProp(obj, "prf") || typeof obj.prf === "string")
 }
@@ -41,13 +42,13 @@ function isUcanPayload_0_0_1(obj: unknown): obj is UcanPayload_0_0_1 {
 
 export function handleCompatibility(header: unknown, payload: unknown): UcanParts {
   const fail = (place: string, reason: string) => new Error(`Can't parse UCAN ${place}: ${reason}`)
-  
+
   if (!util.isRecord(header)) throw fail("header", "Invalid format: Expected a record")
 
   // parse either the "ucv" or "uav" as a version in the header
   // we translate 'uav: 1.0.0' into 'ucv: 0.0.1'
-  // we only support versions 0.7.0 and 0.0.1
-  let version: "0.7.0" | "0.0.1" = "0.7.0"
+  // we only support versions 0.8.0 and 0.0.1
+  let version: "0.8.0" | "0.0.1" = "0.8.0"
   if (!util.hasProp(header, "ucv") || typeof header.ucv !== "string") {
     if (!util.hasProp(header, "uav") || typeof header.uav !== "string") {
       throw fail("header", "Invalid format: Missing version indicator")
@@ -55,11 +56,11 @@ export function handleCompatibility(header: unknown, payload: unknown): UcanPart
       throw fail("header", `Unsupported version 'uav: ${header.uav}'`)
     }
     version = "0.0.1"
-  } else if (header.ucv !== "0.7.0") {
+  } else if (header.ucv !== "0.8.0") {
     throw fail("header", `Unsupported version 'ucv: ${header.ucv}'`)
   }
 
-  if (version === "0.7.0") {
+  if (version === "0.8.0") {
     if (!isUcanHeader(header)) throw fail("header", "Invalid format")
     if (!isUcanPayload(payload)) throw fail("payload", "Invalid format")
     return { header, payload }
@@ -81,12 +82,17 @@ export function handleCompatibility(header: unknown, payload: unknown): UcanPart
       aud: payload.aud,
       nbf: payload.nbf,
       exp: payload.exp,
-      att: [{
-        rsc: payload.rsc,
-        cap: payload.ptc,
-      }],
-      prf: payload.prf != null ? [payload.prf] : []
+      att: (() => {
+        if (payload.rsc === SUPERUSER || typeof payload.rsc === "string") return []
+        const resources: Record<string, string> = payload.rsc
+        return Object.keys(resources).map(rscKey => {
+          return {
+            with: { scheme: rscKey, hierPart: resources[ rscKey ] },
+            can: payload.ptc === SUPERUSER ? SUPERUSER : { namespace: rscKey, segments: [ payload.ptc ] }
+          }
+        })
+      })(),
+      prf: payload.prf != null ? [ payload.prf ] : []
     },
   }
 }
-
