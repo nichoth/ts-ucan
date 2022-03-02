@@ -1,10 +1,10 @@
 import { Ability, SUPERUSER } from "./types"
 
 
-// ABILITIES
+// 🛠
 
 
-export function isSameAbility(a: Ability, b: Ability): boolean {
+export function isEqual(a: Ability, b: Ability): boolean {
   if (a === SUPERUSER && b === SUPERUSER) return true
   if (a === SUPERUSER || b === SUPERUSER) return false
 
@@ -13,12 +13,12 @@ export function isSameAbility(a: Ability, b: Ability): boolean {
     b.namespace.toLowerCase()
   ) &&
     (
-      joinAbilitySegments(a.segments).toLowerCase() ===
-      joinAbilitySegments(b.segments).toLowerCase()
+      joinSegments(a.segments).toLowerCase() ===
+      joinSegments(b.segments).toLowerCase()
     )
 }
 
 
-export function joinAbilitySegments(segments: string[]): string {
+export function joinSegments(segments: string[]): string {
   return segments.join("/")
 }
