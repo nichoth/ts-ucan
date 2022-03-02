@@ -1,6 +1,6 @@
 import { SupportedEncodings } from "uint8arrays/util/bases"
 
-import { Capability, isCapability } from "./capability/types"
+import { Capability, isCapability } from "./capability"
 import * as util from "./util"
 
 

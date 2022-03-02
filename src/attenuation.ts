@@ -1,5 +1,5 @@
 // https://github.com/ucan-wg/spec/blob/dd4ac83f893cef109f5a26b07970b2484f23aabf/README.md#325-attenuation-scope
-import { Capability } from "./capability/types"
+import { Capability } from "./capability"
 import { Chained } from "./chained"
 import { Ucan } from "./types"
 import * as util from "./util"

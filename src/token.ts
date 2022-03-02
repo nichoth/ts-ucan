@@ -4,7 +4,7 @@ import * as uint8arrays from "uint8arrays"
 import * as util from "./util"
 import { handleCompatibility } from "./compatibility"
 import { verifySignatureUtf8 } from "./did/validation"
-import { Capability } from "./capability/types"
+import { Capability } from "./capability"
 import { Fact, Keypair, KeyType } from "./types"
 import { Ucan, UcanHeader, UcanPayload } from "./types"
 

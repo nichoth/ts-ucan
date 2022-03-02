@@ -1,7 +1,7 @@
 // A module to hold all the ugly compatibility logic
 // for getting from old UCANs to newer version UCANs.
 import * as util from "./util"
-import { SUPERUSER } from "./capability/types"
+import { SUPERUSER } from "./capability/super-user"
 import { UcanParts, isUcanHeader, isUcanPayload } from "./types"
 
 
